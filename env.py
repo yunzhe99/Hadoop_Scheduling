@@ -8,7 +8,7 @@ class ResourceScheduler(object):
     numJob: 0~n-1
     numHost: 0~
     St: speed of Transimision
-	alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
+    alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
     hostCore: the number of cores for each host
     jobBlock: the number of blocks for each job
     max_k = max(jobBlock)
