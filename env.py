@@ -8,7 +8,7 @@ class ResourceScheduler(object):
     numJob: 0~n-1
     numHost: 0~
     St: speed of Transimision
-	alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
+    alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
     hostCore: the number of cores for each host
     jobBlock: the number of blocks for each job
     Sc: speed of calculation for each job
@@ -43,32 +43,32 @@ class ResourceScheduler(object):
         if taskType == 2:
             self.St = next(idata)
 
-        self.hostCore = np.zeros(self.numHost)
+        self.hostCore = np.empty(self.numHost, dtype=int)
         for i  in range(self.numHost):
             self.hostCore[i] = next(idata)
 
-        self.jobBlock = np.zeros(self.numJob)
+        self.jobBlock = np.empty(self.numJob, dtype=int)
         for i in range(self.numJob):
             self.jobBlock[i] = next(idata)
         
-        self.Sc = np.zeros(self.numJob)
+        self.Sc = np.empty(self.numJob, dtype=int)
         for i in range(self.numJob):
             self.Sc[i] = next(idata)
         
         self.dataSize = []
         for i in range(self.numJob):
-            self.dataSize.append(np.zeros(int(self.jobBlock[i])))
+            self.dataSize.append(np.empty(self.jobBlock[i], dtype=int))
             for j in range(int(self.jobBlock[i])):
                 self.dataSize[i][j] = next(idata)
         
         self.location = []
         for i in range(self.numJob):
-            self.location.append(np.zeros(int(self.jobBlock[i])))
+            self.location.append(np.empty(self.jobBlock[i], dtype=int))
             for j in range(int(self.jobBlock[i])):
                 self.location[i][j] = next(idata)
 
-        self.jobFinishTime = np.zeros(self.numJob)
-        self.jobCore = np.zeros(self.numJob)
+        self.jobFinishTime = np.empty(self.numJob, dtype=int)
+        self.jobCore = np.empty(self.numJob, dtype=int)
 
         self.runLoc = []
 
@@ -76,7 +76,7 @@ class ResourceScheduler(object):
 
         self.hostCoreFinishTime = []
         for i in range(self.numHost):
-            self.hostCoreFinishTime.append(np.zeros(self.hostCore[i].size))
+            self.hostCoreFinishTime.append(np.empty(self.hostCore[i], dtype=int))
 
     def outputSolutionFromBlock():
         pass
@@ -89,5 +89,5 @@ class ResourceScheduler(object):
 if __name__ == '__main__':
     rs = ResourceScheduler()
     e = 3
-    print(rs.dataSize[0][1])
+    print(rs.dataSize[0][2])
 
