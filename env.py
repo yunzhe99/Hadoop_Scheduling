@@ -8,7 +8,7 @@ class ResourceScheduler(object):
     numJob: 0~n-1
     numHost: 0~
     St: speed of Transimision
-    alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
+	alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
     hostCore: the number of cores for each host
     jobBlock: the number of blocks for each job
     Sc: speed of calculation for each job
@@ -50,6 +50,8 @@ class ResourceScheduler(object):
         self.jobBlock = np.empty(self.numJob, dtype=int)
         for i in range(self.numJob):
             self.jobBlock[i] = next(idata)
+
+        self.max_k = max(self.jobBlock)
         
         self.Sc = np.empty(self.numJob, dtype=int)
         for i in range(self.numJob):
@@ -89,5 +91,5 @@ class ResourceScheduler(object):
 if __name__ == '__main__':
     rs = ResourceScheduler()
     e = 3
-    print(rs.dataSize[0][2])
+    print(rs.max_k)
 
