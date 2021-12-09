@@ -57,14 +57,14 @@ class ResourceScheduler(object):
         
         self.dataSize = []
         for i in range(self.numJob):
-            self.dataSize.append(np.zeros(self.jobBlock[i].size))
-            for j in range(self.jobBlock[i].size):
+            self.dataSize.append(np.zeros(int(self.jobBlock[i])))
+            for j in range(int(self.jobBlock[i])):
                 self.dataSize[i][j] = next(idata)
         
         self.location = []
         for i in range(self.numJob):
-            self.location.append(np.zeros(self.jobBlock[i].size))
-            for j in range(self.jobBlock[i].size):
+            self.location.append(np.zeros(int(self.jobBlock[i])))
+            for j in range(int(self.jobBlock[i])):
                 self.location[i][j] = next(idata)
 
         self.jobFinishTime = np.zeros(self.numJob)
@@ -89,5 +89,5 @@ class ResourceScheduler(object):
 if __name__ == '__main__':
     rs = ResourceScheduler()
     e = 3
-    print(rs.g(e))
+    print(rs.dataSize[0][1])
 
