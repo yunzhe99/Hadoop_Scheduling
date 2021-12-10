@@ -4,7 +4,6 @@ import numpy as np
 import copy
 import random
 import env
-import tools
 
 # rank[jobID][blockID][coreID]储存block序
 # ftCore=[]每个核上数据块的最后结束时间
@@ -70,7 +69,6 @@ def check(job_schedule, job_order):
 
 def sample_change(job_schedule, job_order, m, n):
     '''
-
     :param job_schedule: The core arrangement of each job's block
     :param job_order: The priority of job
     :param m: 核心数量
@@ -153,7 +151,6 @@ def solution_map(order, schedule, m, max_k):
 
 def sample(schedule, order, m, n, max_k, t):
     '''
-
     :param schedule: 各job的block分配
     :param order:  job schedule的优先级
     :param m:  core数
@@ -202,9 +199,6 @@ if __name__ == '__main__':
 
     #测试了1000次近似解生成，没有报错
     schedule, order, rank=sample(job_schedule, job_order, m, n, max_k, 1000)
-    print(order)
-    for item in schedule:
-        print(item)
 
 
     #print(rank)
