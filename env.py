@@ -1,3 +1,6 @@
+from sko.SA import SA
+import matplotlib.pyplot as plt
+import pandas as pd
 import numpy as  np
 import util
 
@@ -8,10 +11,10 @@ class ResourceScheduler(object):
     numJob: 0~n-1
     numHost: 0~
     St: speed of Transimision
-    alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
+	alpha: g(e)=1-alpha(e-1) alpha>0, e is the number of cores allocated to a single job
     hostCore: the number of cores for each host
     jobBlock: the number of blocks for each job
-    max_k = max(jobBlock)
+    max_k
     Sc: speed of calculation for each job
     dataSize: job-> block number-> block size
     location: job-> block number-> block location (host number)
@@ -47,6 +50,10 @@ class ResourceScheduler(object):
         self.hostCore = np.empty(self.numHost, dtype=int)
         for i  in range(self.numHost):
             self.hostCore[i] = next(idata)
+        
+        self.core_location=[] # 意义同tools
+        for i in range(self.numHost):
+            self.core_location+=[i]*self.hostCore[i]
 
         self.jobBlock = np.empty(self.numJob, dtype=int)
         for i in range(self.numJob):
@@ -89,8 +96,18 @@ class ResourceScheduler(object):
     def g(self, e):
         return 1 - self.alpha * (e - 1)
 
+def demo_func(x):
+    x1, x2, x3 = x
+    return x1 ** 2 + (x2 - 0.05) ** 2 + x3 ** 2
+
+
 if __name__ == '__main__':
     rs = ResourceScheduler()
     e = 3
     print(rs.max_k)
+    sa = SA(func=demo_func, x0=[1, 1, 1], T_max=1, T_min=1e-9, L=300, max_stay_counter=150)
+    best_x, best_y = sa.run()
+    print('best_x:', best_x, 'best_y', best_y)
+    plt.plot(pd.DataFrame(sa.best_y_history).cummin(axis=0))
+    plt.show()
 
