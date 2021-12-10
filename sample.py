@@ -169,7 +169,7 @@ def sample(schedule, order, m, n, max_k, t):
     for item in schedule:
         print(item)
     '''
-    return solution_map(order, schedule, m, max_k)
+    return schedule, order, solution_map(order, schedule, m, max_k)
 
 # 按间距中的绿色按钮以运行脚本。
 if __name__ == '__main__':
@@ -177,7 +177,19 @@ if __name__ == '__main__':
     #job_schedule, job_order = sol_init(3, 5, block, 4)
     rs = env.ResourceScheduler()
     n = rs.numJob
-    m = rs.hostCore[0]
+    h = rs.numHost
+
+    '''
+    print(rs.numHost)
+    print(rs.hostCore)
+    '''
+
+    core_location=[] # 意义同tools
+    for i in range(h):
+        core_location+=[i]*rs.hostCore[i]
+    #print(core_location)
+    m = len(core_location)
+    #print(m)
     max_k = max(rs.jobBlock)
     job_schedule, job_order = sol_init(n, m, rs.dataSize, max_k)
     #schedule, order = sample_change(job_schedule, job_order, m, n)
@@ -187,7 +199,12 @@ if __name__ == '__main__':
     for item in job_schedule:
         print(item)
     '''
+
     #测试了1000次近似解生成，没有报错
-    rank=sample(job_schedule, job_order, m, n, max_k, 1000)
+    schedule, order, rank=sample(job_schedule, job_order, m, n, max_k, 1000)
+    print(order)
+    for item in schedule:
+        print(item)
+
 
     #print(rank)
