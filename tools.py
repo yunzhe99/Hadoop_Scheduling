@@ -1,21 +1,32 @@
 import numpy as np
+from env import ResourceScheduler
+
+rs = ResourceScheduler(taskType=1, caseID=2)
+b=rs.max_k
+block_size=rs.dataSize
+s_list=rs.Sc
+if rs.taskType==2:
+    s_t=rs.St
+alpha=rs.alpha
+block_location=rs.location
+core_location=rs.core_location
 
 ###############################
 # config for case 1
 # job * block
-block_size = [[10, 20, 16],
-                [9, 16],
-                [10, 6, 20, 15]]
-# 1 * core
-s_list = [5, 5, 5]
-s_t = 40
-alpha = 0.03
+# block_size = [[10, 20, 16],
+#                 [9, 16],
+#                 [10, 6, 20, 15]]
+# # 1 * core
+# s_list = [5, 5, 5]
+# s_t = 40
+# alpha = 0.03
 
-block_location = [[0, 0, 0],
-                    [0, 0],
-                    [0, 0, 0, 0]]
+# block_location = [[0, 0, 0],
+#                     [0, 0],
+#                     [0, 0, 0, 0]]
 
-core_location = [0, 0, 0, 0]
+# core_location = [0, 0, 0, 0]
 
 # ###############################
 # # config for case 2
@@ -39,7 +50,7 @@ core_location = [0, 0, 0, 0]
 # hypterparamters
 
 c = len(core_location)  # number of cores
-b = 4  # the max number of blocks
+# b = 4  # the max number of blocks
 n = len(block_size)  # number of jobs
 
 # the available core time for now
@@ -60,9 +71,13 @@ def tf_core(job_index, core_blocks, core_used, t):
         size_core += size_block
         if not on_core(core_block, core_index):
             size_trans += size_block
-    tp_t = size_trans / s_t
+    if size_trans > 0:
+        tp_t = size_trans / s_t
     tp_p = size_core / (s_list[job_index] * (1 - alpha * (len(core_used) - 1)))
-    tp = tp_t + tp_p
+    if size_trans > 0:
+        tp = tp_t + tp_p
+    else:
+        tp = tp_p 
     tf = t + tp
     core_t_list[core_index] = tf
     return tf
@@ -112,7 +127,7 @@ def maxtf_job(X):
     for job_index in sorted_id:
         tf_j = tf_job(job_index, job_blocks_list[job_index])
         tf_j_list.append(tf_j)
-    print(tf_j_list)
+    #print(tf_j_list)
     return max(tf_j_list)
 
 
