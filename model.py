@@ -25,7 +25,7 @@ def optmize_init(rs, ybound=(0, np.inf)):
     while y_old == None or y_old < ybound[0] or y_old > ybound[1]:
         schedule, order = sol_init(rs.numJob, rs.m, rs.dataSize, rs.max_k)
         x_old = solution_map(order, schedule, rs.m, rs.max_k)
-        y_old = maxtf_job(x_old, rs)
+        e, tf_j_list, core, core_t_list, core_allocation, y_old = maxtf_job(x_old, rs)
     return schedule, order, x_old, y_old
 
 def optimize(schedule, order, x_old, y_old, rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.01, iterPerT=1, l=1):
@@ -51,14 +51,14 @@ def optimize(schedule, order, x_old, y_old, rs, ybound=(0, np.inf), t=1000, alph
     #     y_old = maxtf_job(x_old, rs)
     y_best = y_old
     x_best = np.copy(x_old)
-    print(y_best)
+    # print(y_best)
     # 降温过程
     count = 0
     while  t > stop:
         downT = False
         for i in range(iterPerT):
             schedule, order, x_new=sample(schedule, order, m, n, max_k, 1)
-            y_new = maxtf_job(x_new, rs)
+            e, tf_j_list, core, core_t_list, core_allocation, y_new = maxtf_job(x_new, rs)
             if y_new > ybound[1] or y_new < ybound[0]:
                 continue
             # 根据取最大还是最小决定dE,最大为旧值尽可能小于新值
@@ -79,24 +79,31 @@ def optimize(schedule, order, x_old, y_old, rs, ybound=(0, np.inf), t=1000, alph
         if count > 3000:
             # print("Stop!")
             break
-    return x_best, y_best
+    return schedule, order, x_best, y_best
 
 if __name__ == '__main__':
     rs = ResourceScheduler(taskType=1, caseID=1)
 
     # print(m)
     # schedule, order, x_best, y_best = optmize_init(rs)
-    for i in range(5):
+    for i in range(10):
         schedule, order, x_best, y_best = optmize_init(rs)
-        x, y = optimize(schedule, order, x_best, y_best, rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.001, iterPerT=1, l=1)
+        schedule, order, x, y = optimize(schedule, order, x_best, y_best, rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.001, iterPerT=1, l=1)
         if y < y_best:
             y_best=y
             x_best=x
-    # print(y_best)
-    # print(x_best)
+            best_schedule=schedule
+            best_order=order
 
-    outputpath = 'outputs/task' + str(rs.taskType) + 'Case' + str(rs.caseID) + '.txt'
-    f = open(outputpath, 'a')
-    for item in x_best:
-        np.savetxt(f, item, fmt='%d')
-    f.write(str(y_best))
+    print(y_best)
+    #print(x_best)
+
+    e, tf_j_list, core, core_t_list, core_allocation, obj = maxtf_job(x_best, rs)
+    rs.outputSolutionFromBlock(e, tf_j_list, core, x_best, obj)
+    rs.outputSolutionFromCore(core_t_list, core_allocation)
+
+    # outputpath = 'outputs/task' + str(rs.taskType) + 'Case' + str(rs.caseID) + '.txt'
+    # f = open(outputpath, 'a')
+    # for item in x_best:
+    #     np.savetxt(f, item, fmt='%d')
+    # f.write(str(y_best))

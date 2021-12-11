@@ -52,8 +52,11 @@ class ResourceScheduler(object):
             self.hostCore[i] = next(idata)
         
         self.core_location=[] # 意义同tools
+        self.host_core=[]
         for i in range(self.numHost):
-            self.core_location+=[i]*self.hostCore[i]
+            self.core_location += [i] * self.hostCore[i]
+            for j in range(self.hostCore[i]):
+                self.host_core.append([i, j])
         self.m=len(self.core_location)
 
         self.jobBlock = np.empty(self.numJob, dtype=int)
@@ -89,9 +92,28 @@ class ResourceScheduler(object):
         for i in range(self.numHost):
             self.hostCoreFinishTime.append(np.empty(self.hostCore[i], dtype=int))
 
-    def outputSolutionFromBlock():
-        pass
-    def outputSolutionFromCore():
+
+    def outputSolutionFromBlock(self,e,tf_j,core,rank,t):
+        outputpath = 'outputs/task' + str(self.taskType) + 'Case' + str(self.caseID) + '.txt'
+        f=open(outputpath,'w')
+        f.write('Task' + str(self.taskType)+ 'Case%d Solution (Block Perspective):\n\n' % self.caseID)
+        for i in range(self.numJob):
+            f.write('Job'+str(i)+' obtains '+str(e[i])+' cores and finish at time %.4f' % tf_j[i]+'\n')
+            for k in range(self.jobBlock[i]):
+                c=core[i][k]
+                f.write('\tBlock'+str(k)+': H'+str(self.host_core[c][0])+', C'
+                        +str(self.host_core[c][1])+', R'+str('%d' % rank[c][k][i])+'\n')
+        f.write('The maximum finish time: '+str(t)+'\n')
+
+    def outputSolutionFromCore(self, core_t_list, core_allocation):
+        outputpath = 'outputs/task' + str(self.taskType) + 'Case' + str(self.caseID) + '.txt'
+        f = open(outputpath, 'a')
+        f.write('\nTask%dCase%d Solution (Core Perspective) of Teaching Assistant:\n'%(self.taskType, self.caseID))
+        for c in range(self.m):
+            f.write('Host'+str(self.host_core[c][0])+', Core'+str(self.host_core[c][1])
+                    +' has '+str(len(core_allocation[c]))+' tasks and finishes at time '+str(core_t_list[c])+':\n')
+            for item in core_allocation[c]:
+                f.write('\tJ'+str(item[0]).zfill(2)+', B'+str(item[1]).zfill(2)+', runtime %.3f to %.3f\n' % (item[2], item[3]))
         pass
 
     def g(self, e):

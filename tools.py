@@ -63,7 +63,7 @@ def on_core(block, core_index, rs):
     return rs.location[block[2]][block[1]] == rs.core_location[core_index]
 
 
-def tf_core(job_index, core_blocks, core_used, t, core_t_list, rs):
+def tf_core(job_index, core_blocks, core_used, t, core_t_list, rs, core_allocation):
     block_size=rs.dataSize
     core_index = core_blocks[0][0]
     s_list = rs.Sc
@@ -87,14 +87,19 @@ def tf_core(job_index, core_blocks, core_used, t, core_t_list, rs):
         tp = tp_p 
     tf = t + tp
     core_t_list[core_index] = tf
+    for core_block in core_blocks:
+        core_allocation[core_index].append([core_block[2], core_block[1], t, tf])
     return tf
 
 
-def tf_job(job_index, job_blocks, core_t_list, rs):
+def tf_job(job_index, job_blocks, core_t_list, rs, e, core_allocation):
     # time of finish for a job
     core_used = set()
     for job_block in job_blocks:
         core_used.add(job_block[0])
+
+    e[job_index]=len(core_used)
+
     # compute t
     t = 0
     for core_index in core_used:
@@ -106,7 +111,7 @@ def tf_job(job_index, job_blocks, core_t_list, rs):
         for job_block in job_blocks:
             if job_block[0] == core_index:
                 core_blocks.append(job_block)
-        tf = tf_core(job_index, core_blocks, core_used, t, core_t_list, rs)
+        tf = tf_core(job_index, core_blocks, core_used, t, core_t_list, rs, core_allocation)
         if tf_j < tf:
             tf_j = tf
     return tf_j
@@ -117,6 +122,10 @@ def maxtf_job(X, rs):
 
     job_p_list = []
     job_blocks_list = []
+    e = [0]*rs.numJob#每个job分配的核数
+    core=[[0]*rs.max_k for i in range(rs.numJob)]
+    core_allocation=[ []for i in range(rs.m) ]
+
     for job_index in range(X.shape[2]):
         job_blocks = []
         block_p_list = []
@@ -124,6 +133,7 @@ def maxtf_job(X, rs):
             for block_index in range(X.shape[1]):
                 if X[core_index][block_index][job_index] != 0:
                     job_blocks.append([core_index, block_index, job_index])
+                    core[job_index][block_index]=core_index
                     block_p_list.append(X[core_index][block_index][job_index])
         job_p = np.mean(block_p_list)
         job_p_list.append(job_p)
@@ -134,10 +144,10 @@ def maxtf_job(X, rs):
 
     core_t_list=np.zeros(rs.m)
     for job_index in sorted_id:
-        tf_j = tf_job(job_index, job_blocks_list[job_index], core_t_list, rs)
+        tf_j = tf_job(job_index, job_blocks_list[job_index], core_t_list, rs, e, core_allocation)
         tf_j_list.append(tf_j)
-    #print(tf_j_list)
-    return max(tf_j_list)
+    #print(tf_j_list) #job结束时间
+    return e, tf_j_list, core, core_t_list, core_allocation, max(tf_j_list)
 
 
 if __name__ == "__main__":
@@ -168,5 +178,8 @@ if __name__ == "__main__":
     # X[4][3][3] = 2
     # X[5][1][2] = 1
     # X[5][1][3] = 2
-    obj = maxtf_job(X, rs)
+    e, tf_j_list, core, core_t_list, core_allocation, obj = maxtf_job(X, rs)
+    rs.outputSolutionFromBlock(e,tf_j_list, core, X, obj)
+    rs.outputSolutionFromCore(core_t_list, core_allocation)
+
     print(obj)
