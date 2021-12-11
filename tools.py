@@ -87,7 +87,6 @@ def tf_core(job_index, core_blocks, core_used, t, core_t_list, rs):
         tp = tp_p 
     tf = t + tp
     core_t_list[core_index] = tf
-    # print(core_t_list)
     return tf
 
 
@@ -137,16 +136,13 @@ def maxtf_job(X, rs):
     for job_index in sorted_id:
         tf_j = tf_job(job_index, job_blocks_list[job_index], core_t_list, rs)
         tf_j_list.append(tf_j)
-    print(tf_j_list)
+    #print(tf_j_list)
     return max(tf_j_list)
 
 
 if __name__ == "__main__":
-    c=4
-    b=4
-    n=3
-    X = np.zeros((c, b, n))
     rs = ResourceScheduler(taskType=1, caseID=2)
+    X = np.zeros((rs.m, rs.max_k, rs.numJob))
 
     # X for case 1
     X[0][0][0] = 1

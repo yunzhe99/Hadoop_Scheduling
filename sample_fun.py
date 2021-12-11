@@ -78,11 +78,11 @@ def sample_change(job_schedule, job_order, m, n):
     schedule = copy.deepcopy(job_schedule)
     order = copy.deepcopy(job_order)
 
-    if random.randint(0, 2) == 0 and n >= 2:
+    if random.randint(0, 1) != 0 and n >= 2:
         i = random.randint(0, n - 2)  # suppose n>=2
         order[i], order[i + 1] = order[i + 1], order[i]
 
-    if random.randint(0, 2) != 0 and m > 1:
+    if random.randint(0, 4) != 0 and m > 1:
         jobID = random.randint(0, n - 1)
         job = schedule[jobID]
         core_set = set([i for i in job['core_id']])
@@ -94,7 +94,7 @@ def sample_change(job_schedule, job_order, m, n):
                 break
         job['core_id'][i] = core1
 
-    if random.randint(0, 3) != 0:
+    if random.randint(0, 7) != 0:
         jobID = random.randint(0, n - 1)
         job = schedule[jobID]
         if not (job['cores'] == 1 and len(job['scheme'][0]) == 1):

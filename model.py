@@ -12,14 +12,23 @@ def __judge__(dE, t):
     if dE < 0:
         return 1
     else:
-        p = np.exp(-dE / t)
+        p = np.exp(- dE / t)
         import random
 
         if p > np.random.random(size=1):
             return 1
         else: return 0
 
-def optimize(rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.001, iterPerT=1, l=1):
+def optmize_init(rs, ybound=(0, np.inf)):
+    # 初始化
+    y_old = None
+    while y_old == None or y_old < ybound[0] or y_old > ybound[1]:
+        schedule, order = sol_init(rs.numJob, rs.m, rs.dataSize, rs.max_k)
+        x_old = solution_map(order, schedule, rs.m, rs.max_k)
+        y_old = maxtf_job(x_old, rs)
+    return schedule, order, x_old, y_old
+
+def optimize(schedule, order, x_old, y_old, rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.01, iterPerT=1, l=1):
     '''
     :param f: 目标函数,接受np.array作为参数
     :param ybound: y取值范围
@@ -32,16 +41,17 @@ def optimize(rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.001, iterPerT=1,
     :param randf: 对参数的随机扰动函数，接受现有权值，返回扰动后的新权值np.array
     '''
     # 初始化
-    y_old = None
+    # y_old = None
     m=rs.m
     n=rs.numJob
     max_k=rs.max_k
-    while y_old == None or y_old < ybound[0] or y_old > ybound[1]:
-        schedule, order = sol_init(rs.numJob, rs.m, rs.dataSize, rs.max_k)
-        x_old = solution_map(order, schedule, rs.m, rs.max_k)
-        y_old = maxtf_job(x_old, rs)
+    # while y_old == None or y_old < ybound[0] or y_old > ybound[1]:
+    #     schedule, order = sol_init(rs.numJob, rs.m, rs.dataSize, rs.max_k)
+    #     x_old = solution_map(order, schedule, rs.m, rs.max_k)
+    #     y_old = maxtf_job(x_old, rs)
     y_best = y_old
     x_best = np.copy(x_old)
+    print(y_best)
     # 降温过程
     count = 0
     while  t > stop:
@@ -66,19 +76,27 @@ def optimize(rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.001, iterPerT=1,
         if downT:
             t = t * alpha
         # 长时间不降温
-        if count > 1000: break
+        if count > 3000:
+            # print("Stop!")
+            break
     return x_best, y_best
 
 if __name__ == '__main__':
-    rs = ResourceScheduler(taskType=1, caseID=2)
+    rs = ResourceScheduler(taskType=1, caseID=1)
+
     # print(m)
-    y_best=np.inf
-    x_best=[]
-    for i in range(1):
-        x, y = optimize(rs, ybound=(0, np.inf), t=1, alpha=0.98, stop=0.001, iterPerT=1, l=1)
+    # schedule, order, x_best, y_best = optmize_init(rs)
+    for i in range(5):
+        schedule, order, x_best, y_best = optmize_init(rs)
+        x, y = optimize(schedule, order, x_best, y_best, rs, ybound=(0, np.inf), t=1000, alpha=0.98, stop=0.001, iterPerT=1, l=1)
         if y < y_best:
             y_best=y
             x_best=x
-        
-    print(y_best)
-    print(x_best)
+    # print(y_best)
+    # print(x_best)
+
+    outputpath = 'outputs/task' + str(rs.taskType) + 'Case' + str(rs.caseID) + '.txt'
+    f = open(outputpath, 'a')
+    for item in x_best:
+        np.savetxt(f, item, fmt='%d')
+    f.write(str(y_best))

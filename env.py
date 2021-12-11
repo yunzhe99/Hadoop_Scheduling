@@ -1,4 +1,4 @@
-from sko.SA import SA
+# from sko.SA import SA
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as  np
@@ -54,6 +54,7 @@ class ResourceScheduler(object):
         self.core_location=[] # 意义同tools
         for i in range(self.numHost):
             self.core_location+=[i]*self.hostCore[i]
+        self.m=len(self.core_location)
 
         self.jobBlock = np.empty(self.numJob, dtype=int)
         for i in range(self.numJob):
@@ -105,9 +106,11 @@ if __name__ == '__main__':
     rs = ResourceScheduler()
     e = 3
     print(rs.max_k)
+    '''
     sa = SA(func=demo_func, x0=[1, 1, 1], T_max=1, T_min=1e-9, L=300, max_stay_counter=150)
     best_x, best_y = sa.run()
     print('best_x:', best_x, 'best_y', best_y)
     plt.plot(pd.DataFrame(sa.best_y_history).cummin(axis=0))
     plt.show()
+    '''
 
